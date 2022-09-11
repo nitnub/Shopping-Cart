@@ -1,23 +1,9 @@
-/* eslint-disable */
-
 const products = [
   { id: 1001, name: 'Apples', country: 'Italy', cost: 3, instock: 10 },
   { id: 1002, name: 'Oranges', country: 'Spain', cost: 4, instock: 3 },
   { id: 1003, name: 'Beans', country: 'USA', cost: 2, instock: 5 },
   { id: 1004, name: 'Cabbage', country: 'USA', cost: 1, instock: 8 },
 ];
-//=========Cart=============
-const Cart = (props) => {
-  const { Card, Accordion, Button } = ReactBootstrap;
-  let data = props.location.data ? props.location.data : items;
-  console.log(`data:${JSON.stringify(data)}`);
-
-  return (
-    <Accordion className="accordion" defaultActiveKey="0">
-      {list}
-    </Accordion>
-  );
-};
 
 const useDataApi = (initialUrl, initialData) => {
   const { useState, useEffect, useReducer } = React;
@@ -29,16 +15,14 @@ const useDataApi = (initialUrl, initialData) => {
     data: initialData,
   });
   console.log(`useDataApi called`);
-  // console.log(`Current state object: ${JSON.stringify(state.data)}`);
+
   useEffect(() => {
     console.log('useEffect Called on', url);
     let didCancel = false;
     const fetchData = async () => {
       dispatch({ type: 'FETCH_INIT' });
       try {
-        console.log('useEffect (try) Called on', url);
         const result = await axios(url);
-        console.log('FETCH FROM URL =>', result);
         if (!didCancel) {
           dispatch({ type: 'FETCH_SUCCESS', payload: result.data });
         }
@@ -85,20 +69,10 @@ const dataFetchReducer = (state, action) => {
 function Products(props) {
   const [items, setItems] = React.useState(products);
   const [cart, setCart] = React.useState([]);
-  const {
-    Card,
-    Accordion,
-    Button,
-    Container,
-    Row,
-    Col,
-    Image,
-    Input,
-    Navbar,
-    Nav,
-  } = ReactBootstrap;
+  const { Card, Accordion, Button, Container, Row, Col, Image, Navbar } =
+    ReactBootstrap;
   //  Fetch Data
-  const { Fragment, useState, useEffect, useReducer } = React;
+  const { useState, useReducer } = React;
   const [query, setQuery] = useState('products');
   const [{ data, isLoading, isError }, doFetch] = useDataApi(
     `http://localhost:1337/api/${query}`,
@@ -151,16 +125,7 @@ function Products(props) {
   const closeAccordion = (id) => {
     const target = document.getElementById(id);
     target.classList.remove('show');
-    // target.classList.add('collapse');
-    target.click();
   };
-
-  const photos = [
-    './images/apple.png',
-    './images/orange.png',
-    './images/beans.png',
-    './images/cabbage.png',
-  ];
 
   const list = items.map((item, index) => {
     const photoUrl = `https://picsum.photos/id/${index * 10}/50/50`;
@@ -191,8 +156,7 @@ function Products(props) {
   });
 
   let cartList = cart.map((item, index) => {
-    // const cartId = item.name + index;
-    const cartId = '#' + item.name + index;
+    const cartId = `${item.name}-${index}`;
     return (
       <Card key={cartId}>
         <Accordion.Toggle
@@ -260,7 +224,6 @@ function Products(props) {
     let costs = cart.map((item) => item.cost);
     const reducer = (accum, current) => accum + current;
     let newTotal = costs.reduce(reducer, 0);
-    console.log(`total updated to ${newTotal}`);
     return newTotal;
   };
 
@@ -279,8 +242,6 @@ function Products(props) {
 
     setItems([...items, ...tempItems]);
   };
-
-
 
   return (
     <>

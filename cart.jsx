@@ -1,4 +1,4 @@
-// simulate getting products from DataBase
+/* eslint-disable */
 
 const products = [
   { id: 1001, name: 'Apples', country: 'Italy', cost: 3, instock: 10 },
@@ -85,8 +85,6 @@ const dataFetchReducer = (state, action) => {
 function Products(props) {
   const [items, setItems] = React.useState(products);
   const [cart, setCart] = React.useState([]);
-  const [total, setTotal] = React.useState(0);
-  const [tempId, setTempId] = React.useState(products.length);
   const {
     Card,
     Accordion,
@@ -108,19 +106,15 @@ function Products(props) {
       data: [],
     }
   );
-
-  function decrementStock(item) {
-    const productCopy = [...items];
-    for (let product of productCopy) {
-      if (product.id === item.id && product.instock > 0) {
-        product.instock -= 1;
-        setItems((product) => productCopy);
-        return true;
-      }
-    }
-    return false;
+  function Header() {
+    return (
+      <Navbar className=" navbar-dark bg-dark" expand="lg">
+        <Container>
+          <Navbar.Brand href="/">React Shopping Cart</Navbar.Brand>
+        </Container>
+      </Navbar>
+    );
   }
-
   function incrementStock(id) {
     const productCopy = [...items];
 
@@ -232,9 +226,8 @@ function Products(props) {
   function groupedCart(cart) {
     const gCart = {};
     cart.forEach((item) => {
-      const { name } = item;
+      const { name, cost, id } = item;
       if (!gCart[name]) {
-        const { id, cost } = item;
         gCart[name] = { id, name, cost, inCart: 1 };
       } else {
         gCart[name].inCart += 1;
@@ -242,8 +235,8 @@ function Products(props) {
     });
 
     return Object.values(gCart);
-
   }
+
   const finalList = () => {
     const total = checkOut();
 
@@ -251,7 +244,10 @@ function Products(props) {
       return (
         <>
           <div className="checkout-item" key={index} index={index}>
-            {item.name} (x{item.inCart}) ... ${item.cost * item.inCart}
+            <div>
+              {item.name} (x{item.inCart})
+            </div>
+            <div>${item.cost * item.inCart}</div>
           </div>
           <hr className="checkout-spacer"></hr>
         </>
@@ -269,16 +265,14 @@ function Products(props) {
   };
 
   // TODO: implement the restockProducts function
-  // let productId = tempId;
 
   const restockProducts = async (url) => {
     doFetch(url);
     const res = await fetch(url);
-    const json = await res.json();
+    const data = await res.json();
 
-    const tempItems = json.data.map((item, index) => {
+    const tempItems = data.data.map((item, index) => {
       const id = items.length + index; // create a new unique identifier
-
       const { name, cost, country, instock } = item.attributes;
       return { id, name, cost, country, instock, inCart: 0 };
     });
@@ -286,15 +280,7 @@ function Products(props) {
     setItems([...items, ...tempItems]);
   };
 
-  function Header() {
-    return (
-      <Navbar className=" navbar-dark bg-dark" expand="lg">
-        <Container>
-          <Navbar.Brand href="/">React Shopping Cart</Navbar.Brand>
-        </Container>
-      </Navbar>
-    );
-  }
+
 
   return (
     <>

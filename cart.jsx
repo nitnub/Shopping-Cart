@@ -36,8 +36,9 @@ const useDataApi = (initialUrl, initialData) => {
     const fetchData = async () => {
       dispatch({ type: 'FETCH_INIT' });
       try {
+        console.log('useEffect (try) Called on', url);
         const result = await axios(url);
-        console.log('FETCH FROM URL');
+        console.log('FETCH FROM URL =>', result);
         if (!didCancel) {
           dispatch({ type: 'FETCH_SUCCESS', payload: result.data });
         }
@@ -53,6 +54,7 @@ const useDataApi = (initialUrl, initialData) => {
     };
   }, [url]);
   return [state, setUrl];
+  // return [state];
 };
 const dataFetchReducer = (state, action) => {
   switch (action.type) {
@@ -151,6 +153,14 @@ function Products(props) {
 
     setCart(newCart);
   };
+
+  const closeAccordion = (id) => {
+    const target = document.getElementById(id);
+    target.classList.remove('show');
+    // target.classList.add('collapse');
+    target.click();
+  };
+
   const photos = [
     './images/apple.png',
     './images/orange.png',
@@ -185,32 +195,30 @@ function Products(props) {
       </li>
     );
   });
-  
+
   let cartList = cart.map((item, index) => {
+    // const cartId = item.name + index;
+    const cartId = '#' + item.name + index;
     return (
-      <Card key={item.name + index}>
+      <Card key={cartId}>
         <Accordion.Toggle
           as={Card.Header}
-          className="cart-item-toggle collapsed"
-          eventKey={item.name + index}
-         
+          className="cart-item-toggle"
+          eventKey={cartId}
         >
           {item.name}
         </Accordion.Toggle>
-        <Accordion.Collapse 
-        className="collapsed" 
-         aria-expanded="false"
-        eventKey={item.name + index}>
-          
-          <Card.Body 
-           aria-expanded="false"
-           >
+        <Accordion.Collapse id={cartId} className="collapse" eventKey={cartId}>
+          <Card.Body>
             <div className="cart-item">
               ${item.cost} from {item.country}
               <Button
-              aria-expanded="false"
                 className="btn btn-dark btn-remove"
-                onClick={() => deleteCartItem(index)}
+                onClick={() => {
+                  closeAccordion(cartId);
+                  incrementStock(item.id);
+                  deleteCartItem(index);
+                }}
               >
                 Remove
               </Button>
@@ -218,58 +226,32 @@ function Products(props) {
           </Card.Body>
         </Accordion.Collapse>
       </Card>
-      // <Card key={index}>
-      //   <Card.Header>
-
-      //   </Card.Header>
-      // <Accordion.Item
-      //   // className="accordion-item"
-      //   key={1 + index}
-      //   eventKey={1 + index}
-      // >
-      //   <Accordion.Header>{item.name}</Accordion.Header>
-      //   <Accordion.Body
-      //     onClick={() => {
-      //       incrementStock(item.id);
-      //       deleteCartItem(index);
-      //     }}
-      //     eventKey={1 + index}
-      //   >
-      //     $ {item.cost} from {item.country}
-      //   </Accordion.Body>
-      // </Accordion.Item>
-      // </Card>
     );
   });
 
   function groupedCart(cart) {
     const gCart = {};
-    const groupedArray = [];
     cart.forEach((item) => {
       const { name } = item;
-      const total = item.inCart;
       if (!gCart[name]) {
-        const { id, cost, inCart } = item;
+        const { id, cost } = item;
         gCart[name] = { id, name, cost, inCart: 1 };
       } else {
-        const currentCount = gCart[name].inCart;
         gCart[name].inCart += 1;
       }
     });
 
-    for (let key in gCart) {
-      groupedArray.push(gCart[key]);
-    }
-    return groupedArray;
+    return Object.values(gCart);
+
   }
-  let finalList = () => {
-    let total = checkOut();
+  const finalList = () => {
+    const total = checkOut();
 
     let final = groupedCart(cart).map((item, index) => {
       return (
         <>
           <div className="checkout-item" key={index} index={index}>
-            {item.name} (x{item.inCart})... ${item.cost * item.inCart}
+            {item.name} (x{item.inCart}) ... ${item.cost * item.inCart}
           </div>
           <hr className="checkout-spacer"></hr>
         </>
@@ -285,19 +267,22 @@ function Products(props) {
     console.log(`total updated to ${newTotal}`);
     return newTotal;
   };
+
   // TODO: implement the restockProducts function
-  let productId = tempId;
-  const restockProducts = (url) => {
+  // let productId = tempId;
+
+  const restockProducts = async (url) => {
     doFetch(url);
-    const res = data.data; // Data object is nested in response
-    const tempItems = res.map((item) => {
-      // utilize a dummy ID so that we can restock as many times as we'd like w/o ID collisions
-      const id = productId;
-      productId++;
-      setTempId((tempId) => tempId + 1);
+    const res = await fetch(url);
+    const json = await res.json();
+
+    const tempItems = json.data.map((item, index) => {
+      const id = items.length + index; // create a new unique identifier
+
       const { name, cost, country, instock } = item.attributes;
       return { id, name, cost, country, instock, inCart: 0 };
     });
+
     setItems([...items, ...tempItems]);
   };
 
@@ -323,7 +308,7 @@ function Products(props) {
           </Col>
           <Col>
             <h1>Cart Contents</h1>
-            <Accordion defaultActiveKey="0">{cartList}</Accordion>
+            <Accordion>{cartList}</Accordion>
           </Col>
           <Col>
             <h1>Check Out</h1>
@@ -342,7 +327,6 @@ function Products(props) {
           <form
             onSubmit={(event) => {
               restockProducts(`http://localhost:1337/api/${query}`);
-              console.log(`Restock called on ${query}`);
               event.preventDefault();
             }}
           >
@@ -351,7 +335,7 @@ function Products(props) {
               value={query}
               onChange={(event) => setQuery(event.target.value)}
             />
-            <button type="submit">ReStock Products</button>
+            <button type="submit">Restock Products</button>
           </form>
         </Row>
       </Container>

@@ -185,20 +185,36 @@ function Products(props) {
       </li>
     );
   });
+  
   let cartList = cart.map((item, index) => {
     return (
-      <Card key={index}>
-        <Card.Header>
-          <Accordion.Toggle as={Button} variant="link" eventKey={1 + index}>
-            {item.name}
-          </Accordion.Toggle>
-        </Card.Header>
-        <Accordion.Collapse
-          onClick={() => deleteCartItem(index)}
-          eventKey={1 + index}
+      <Card key={item.name + index}>
+        <Accordion.Toggle
+          as={Card.Header}
+          className="cart-item-toggle collapsed"
+          eventKey={item.name + index}
+         
         >
-          <Card.Body>
-            $ {item.cost} from {item.country}
+          {item.name}
+        </Accordion.Toggle>
+        <Accordion.Collapse 
+        className="collapsed" 
+         aria-expanded="false"
+        eventKey={item.name + index}>
+          
+          <Card.Body 
+           aria-expanded="false"
+           >
+            <div className="cart-item">
+              ${item.cost} from {item.country}
+              <Button
+              aria-expanded="false"
+                className="btn btn-dark btn-remove"
+                onClick={() => deleteCartItem(index)}
+              >
+                Remove
+              </Button>
+            </div>
           </Card.Body>
         </Accordion.Collapse>
       </Card>
@@ -290,7 +306,6 @@ function Products(props) {
       <Navbar className=" navbar-dark bg-dark" expand="lg">
         <Container>
           <Navbar.Brand href="/">React Shopping Cart</Navbar.Brand>
-         
         </Container>
       </Navbar>
     );

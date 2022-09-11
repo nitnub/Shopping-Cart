@@ -1,3 +1,17 @@
+* {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+}
+
+body {
+  background-color: rgb(239, 239, 239);
+}
+
+.col {
+  text-align: center;
+}
+
 .product-listing {
   display: flex;
   background-color: rgb(255, 255, 255);
@@ -6,9 +20,11 @@
   margin: 6px 0;
 }
 
-body {
-  background-color: rgb(239, 239, 239);
+.product-details {
+  width: 100%;
 }
+
+
 
 .product-image {
   border-top-left-radius: 4px;
@@ -37,6 +53,23 @@ body {
 .checkout-button {
   border-bottom-left-radius: 0px;
   border-bottom-right-radius: 0px;
+}
+
+.cart-item {
+  display: flex;
+  justify-content: space-between;
+}
+
+.ci-header {
+display: flex;
+background-color: blue;
+padding: 0;
+}
+
+.ci-toggle {
+  position: absolute;
+  height:inherit;
+  width: 100%;
 }
 
 .checkout-item {

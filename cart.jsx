@@ -180,7 +180,7 @@ function Products(props) {
           eventKey={1 + index}
         >
           <Accordion.Header>
-            {item.name} {item.inCart}
+            {item.name}
           </Accordion.Header>
           <Accordion.Body
             onClick={() => {

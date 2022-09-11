@@ -85,8 +85,18 @@ function Products(props) {
   const [cart, setCart] = React.useState([]);
   const [total, setTotal] = React.useState(0);
   const [tempId, setTempId] = React.useState(products.length);
-  const { Card, Accordion, Button, Container, Row, Col, Image, Input } =
-    ReactBootstrap;
+  const {
+    Card,
+    Accordion,
+    Button,
+    Container,
+    Row,
+    Col,
+    Image,
+    Input,
+    Navbar,
+    Nav,
+  } = ReactBootstrap;
   //  Fetch Data
   const { Fragment, useState, useEffect, useReducer } = React;
   const [query, setQuery] = useState('products');
@@ -156,7 +166,11 @@ function Products(props) {
         <div className="product-listing">
           <Image className="product-image" src={photoUrl} width={70}></Image>
           <div className="product-details">
-            <Button className="product-button" variant="primary" size="large">
+            <Button
+              className="product-button btn-warning"
+              variant="primary"
+              size="large"
+            >
               {item.name} ${item.cost} Stock:{item.instock}
             </Button>
             <input
@@ -173,26 +187,42 @@ function Products(props) {
   });
   let cartList = cart.map((item, index) => {
     return (
-      <Accordion>
-        <Accordion.Item
-          className="accordion-item"
-          key={1 + index}
+      <Card key={index}>
+        <Card.Header>
+          <Accordion.Toggle as={Button} variant="link" eventKey={1 + index}>
+            {item.name}
+          </Accordion.Toggle>
+        </Card.Header>
+        <Accordion.Collapse
+          onClick={() => deleteCartItem(index)}
           eventKey={1 + index}
         >
-          <Accordion.Header>
-            {item.name}
-          </Accordion.Header>
-          <Accordion.Body
-            onClick={() => {
-              incrementStock(item.id);
-              deleteCartItem(index);
-            }}
-            eventKey={1 + index}
-          >
+          <Card.Body>
             $ {item.cost} from {item.country}
-          </Accordion.Body>
-        </Accordion.Item>
-      </Accordion>
+          </Card.Body>
+        </Accordion.Collapse>
+      </Card>
+      // <Card key={index}>
+      //   <Card.Header>
+
+      //   </Card.Header>
+      // <Accordion.Item
+      //   // className="accordion-item"
+      //   key={1 + index}
+      //   eventKey={1 + index}
+      // >
+      //   <Accordion.Header>{item.name}</Accordion.Header>
+      //   <Accordion.Body
+      //     onClick={() => {
+      //       incrementStock(item.id);
+      //       deleteCartItem(index);
+      //     }}
+      //     eventKey={1 + index}
+      //   >
+      //     $ {item.cost} from {item.country}
+      //   </Accordion.Body>
+      // </Accordion.Item>
+      // </Card>
     );
   });
 
@@ -221,9 +251,12 @@ function Products(props) {
 
     let final = groupedCart(cart).map((item, index) => {
       return (
-        <div key={index} index={index}>
-          {item.name} (x{item.inCart})... ${item.cost * item.inCart}
-        </div>
+        <>
+          <div className="checkout-item" key={index} index={index}>
+            {item.name} (x{item.inCart})... ${item.cost * item.inCart}
+          </div>
+          <hr className="checkout-spacer"></hr>
+        </>
       );
     });
     return { final, total };
@@ -252,40 +285,62 @@ function Products(props) {
     setItems([...items, ...tempItems]);
   };
 
+  function Header() {
+    return (
+      <Navbar className=" navbar-dark bg-dark" expand="lg">
+        <Container>
+          <Navbar.Brand href="/">React Shopping Cart</Navbar.Brand>
+         
+        </Container>
+      </Navbar>
+    );
+  }
+
   return (
-    <Container>
-      <Row>
-        <Col>
-          <h1>Product List</h1>
-          <ul style={{ listStyleType: 'none' }}>{list}</ul>
-        </Col>
-        <Col>
-          <h1>Cart Contents</h1>
-          <Accordion defaultActiveKey="0">{cartList}</Accordion>
-        </Col>
-        <Col>
-          <h1>CheckOut </h1>
-          <Button onClick={checkOut}>CheckOut $ {finalList().total}</Button>
-          <div> {finalList().total > 0 && finalList().final} </div>
-        </Col>
-      </Row>
-      <Row>
-        <form
-          onSubmit={(event) => {
-            restockProducts(`http://localhost:1337/api/${query}`);
-            console.log(`Restock called on ${query}`);
-            event.preventDefault();
-          }}
-        >
-          <input
-            type="text"
-            value={query}
-            onChange={(event) => setQuery(event.target.value)}
-          />
-          <button type="submit">ReStock Products</button>
-        </form>
-      </Row>
-    </Container>
+    <>
+      <Header />
+
+      <Container>
+        <Row>
+          <Col>
+            <h1>Product List</h1>
+            <ul style={{ listStyleType: 'none' }}>{list}</ul>
+          </Col>
+          <Col>
+            <h1>Cart Contents</h1>
+            <Accordion defaultActiveKey="0">{cartList}</Accordion>
+          </Col>
+          <Col>
+            <h1>Check Out</h1>
+            <Card>
+              <Button
+                className={`btn-warning ${cart.length && ' checkout-button '}`}
+                onClick={checkOut}
+              >
+                Check Out ${finalList().total}
+              </Button>
+              <div> {finalList().total > 0 && finalList().final} </div>
+            </Card>
+          </Col>
+        </Row>
+        <Row>
+          <form
+            onSubmit={(event) => {
+              restockProducts(`http://localhost:1337/api/${query}`);
+              console.log(`Restock called on ${query}`);
+              event.preventDefault();
+            }}
+          >
+            <input
+              type="text"
+              value={query}
+              onChange={(event) => setQuery(event.target.value)}
+            />
+            <button type="submit">ReStock Products</button>
+          </form>
+        </Row>
+      </Container>
+    </>
   );
 }
 // ========================================

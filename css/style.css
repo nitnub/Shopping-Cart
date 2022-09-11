@@ -10,7 +10,6 @@ body {
   background-color: rgb(239, 239, 239);
 }
 
-
 .product-image {
   border-top-left-radius: 4px;
   border-bottom-left-radius: 4px;
@@ -33,4 +32,27 @@ body {
   border-top-right-radius: 0px;
   border: 1px rgb(212, 212, 212) solid;
   background-color: white;
+}
+
+.checkout-button {
+  border-bottom-left-radius: 0px;
+  border-bottom-right-radius: 0px;
+}
+
+.checkout-item {
+  padding-left: 12px;
+}
+
+.checkout-item:first-of-type {
+  padding-left: 12px;
+  padding-top: 16px;
+}
+
+.checkout-item:last-of-type {
+  padding-left: 12px;
+  padding-bottom: 16px;
+}
+
+.checkout-spacer:last-of-type {
+  display: none
 }
